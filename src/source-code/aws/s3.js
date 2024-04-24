@@ -40,7 +40,8 @@ const getS3File = async (file) => {
   try {
     const command = new GetObjectCommand(params);
     const response = await s3.send(command);
-    bufferFile = await response.Body.transformToString("utf-8");
+    const responseBody = await response.Body.transformToString("utf-8");
+    bufferFile = Buffer.from(responseBody);
   } catch (error) {
     console.error(error);
     throw error;
