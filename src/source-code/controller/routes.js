@@ -74,11 +74,9 @@ api.post("/path2", upload.single("file"), async (request, response) => {
     // Delete the file from S3
     await deleteS3File(originalname);
 
-    response.writeHead(StatusCodes.OK, {
-      "content-disposition": `attachment; filename=${originalname}`,
-      "Content-Type": mimetype,
-    });
-    response.end(buffer);
+    response
+      .status(StatusCodes.OK)
+      .json({ msg: "Hello from path2" });
   } catch (error) {
     console.error("Error", error);
     response
