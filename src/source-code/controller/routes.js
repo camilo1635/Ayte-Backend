@@ -21,10 +21,13 @@ const {
 
 const api = express.Router();
 
+
+//creacion de usuarios
 api.post("/path1", async (request, response) => {
   try {
+    console.log("hola mundo")
     console.info("BODY", request.body);
-
+    /*
     const item = {
       ...request.body,
       visible: true,
@@ -39,10 +42,10 @@ api.post("/path1", async (request, response) => {
 
     // Delete the item from DynamoDB
     await deleteDynamoDBItem({ id: item.id });
-
+    */
     response
       .status(StatusCodes.OK)
-      .json({ msg: "Hello from path1" });
+      .json({ msg: "mensaje del servidor en el path1" });
   } catch (error) {
     console.error("Error", error);
     response
@@ -51,6 +54,7 @@ api.post("/path1", async (request, response) => {
   }
 });
 
+//creacion de usuarios
 api.post("/path2", upload.single("file"), async (request, response) => {
   try {
     console.info("BODY", request.file);
