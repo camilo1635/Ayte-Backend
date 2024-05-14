@@ -9,18 +9,19 @@ Globals:
     Timeout: 30
     MemorySize: 128
     Tracing: Active
-
+    LoggingConfig:
+      LogFormat: JSON
 Parameters:
   AppName:
     Type: String
-    Default: app-name
+    Default: sitio-turistico
   AppEnv:
     Type: String
     Default: dev
 
 Resources:
   # ------------- IAM Role -------------
-  AppNameRole:
+  SitioTuristicoRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub ${AppName}-role-${AppEnv}
@@ -57,7 +58,7 @@ Resources:
                   - dynamodb:DeleteItem
                 Effect: Allow
                 Resource:
-                  - !GetAtt AppNameTable.Arn
+                  !GetAtt SitioTuristicoTable.Arn
         - PolicyName: AppNameS3Policy
           PolicyDocument:
             Version: 2012-10-17
@@ -69,62 +70,62 @@ Resources:
                   - s3:DeleteObject
                 Effect: Allow
                 Resource:
-                  - !GetAtt AppNameBucket.Arn
-                  - !Sub ${AppNameBucket.Arn}/*
+                  - !GetAtt SitioTuristicoBucket.Arn
+                  - !Sub ${SitioTuristicoBucket.Arn}/*
 
   # ------------- API Gateway -------------
-  AppNameApiGateway:
+  SitioTuristicoApiGateway:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Sub ${AppEnv}
 
   # ------------- DynamoDB -------------
-  AppNameTable:
+  SitioTuristicoTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub ${AppName}-table-${AppEnv}
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: id_reserva
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: id_reserva
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
 
   # ------------- S3 -------------
-  AppNameBucket:
+  SitioTuristicoBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${AppName}-bucket-${AppEnv}
       AccessControl: Private
 
   # ------------- Lambda functions -------------
-  AppNameFunction:
+  SitioTuristicoFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub ${AppName}-function-${AppEnv}
       CodeUri: src/source-code/
       Handler: app.handler
-      Role: !GetAtt AppNameRole.Arn
+      Role: !GetAtt SitioTuristicoRole.Arn
       Runtime: nodejs18.x
       Architectures:
         - x86_64
       Environment:
         Variables:
           CORS_ORIGIN: "*"
-          DYNAMODB_TABLE: !Ref AppNameTable
-          S3_BUCKET: !Ref AppNameBucket
+          DYNAMODB_TABLE: !Ref SitioTuristicoTable
+          S3_BUCKET: !Ref SitioTuristicoBucket
       Events:
         AppNameFunctionProxy:
           Type: Api
           Properties:
-            RestApiId: !Ref AppNameApiGateway
+            RestApiId: !Ref SitioTuristicoApiGateway
             Method: ANY
             Path: /{proxy+}
 
 Outputs:
-  AppNameApiGateway:
+  SitioTuristicoApiGateway:
     Description: API Gateway endpoint URL
-    Value: !Sub https://${AppNameApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${AppEnv}/
+    Value: !Sub https://${SitioTuristicoApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${AppEnv}/

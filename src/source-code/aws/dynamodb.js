@@ -6,15 +6,17 @@ const {
   DeleteCommand,
 } = require("@aws-sdk/lib-dynamodb");
 
-const { AWS_REGION, DYNAMODB_TABLE } = require("../utils/constants");
+const { AWS_REGION, SitioTuristicoTable } = require("../utils/constants");
 
 const dynamodbClient = new DynamoDB({ region: AWS_REGION });
 const dynamodb = DynamoDBDocument.from(dynamodbClient);
 
-const getDynamoDBItem = async (key) => {
+const getDynamoDBItem = async (id_reserva) => {
   const params = {
-    TableName: DYNAMODB_TABLE,
-    Key: key,
+    TableName: SitioTuristicoTable,
+    Key: {
+      id_reserva,
+    },
   };
   console.info("GET PARAMS", params);
 
@@ -33,10 +35,32 @@ const getDynamoDBItem = async (key) => {
   }
 }
 
-const putDynamoDBItem = async (item) => {
+const createReserva = async (id_reserva) => {
+  try{
+    const params = {
+      TableName: SitioTuristicoTable,
+      Item: {
+        id_reserva,
+        Nombres: "",
+        Apellidos: "",
+        Fecha_y_hora: "",
+      },
+
+    };
+    console.info({ msg: "PARAMS", params });
+
+    await dynamodb.put(params);
+  }catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+
+const putDynamoDBItem = async (id_reserva) => {
   const params = {
-    TableName: DYNAMODB_TABLE,
-    Item: item,
+    TableName: SitioTuristicoTable,
+    Item: id_reserva,
   };
   console.info("PUT PARAMS", params);
 
@@ -49,10 +73,10 @@ const putDynamoDBItem = async (item) => {
   }
 }
 
-const deleteDynamoDBItem = async (key) => {
+const deleteDynamoDBItem = async (id_reserva) => {
   const params = {
-    TableName: DYNAMODB_TABLE,
-    Key: key,
+    TableName: SitioTuristicoTable,
+    Key: id_reserva,
   };
   console.info("DELETE PARAMS", params);
 
@@ -66,6 +90,7 @@ const deleteDynamoDBItem = async (key) => {
 }
 
 module.exports = {
+  createReserva,
   getDynamoDBItem,
   putDynamoDBItem,
   deleteDynamoDBItem,

@@ -2,10 +2,12 @@ const express = require("express");
 const multer  = require('multer');
 const { StatusCodes } = require("http-status-codes");
 
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Importing the functions from the DynamoDB SDK
 const {
+  createReserva,
   putDynamoDBItem,
   getDynamoDBItem,
   deleteDynamoDBItem,
@@ -21,28 +23,34 @@ const {
 
 const api = express.Router();
 
-api.post("/path1", async (request, response) => {
-  try {
-    console.info("BODY", request.body);
 
+//creacion de usuarios
+api.post("/buscarDatos", async (request, response) => {
+  try {
+    console.log("hola mundo")
+    console.info("BODY", request.body);
+    
+    /*
     const item = {
       ...request.body,
       visible: true,
     };
+    */
 
     // Put the item in DynamoDB
-    await putDynamoDBItem(item);
+    //await putDynamoDBItem(item);
 
     // Get the item from DynamoDB
-    const dynamoDBItem = await getDynamoDBItem({ id: item.id });
-    console.info(`DynamoDB Item With ID ${item.id}`, dynamoDBItem);
+    const dynamoDBItem = await getDynamoDBItem(request.body.id_reserva);
+    //console.info(`DynamoDB Item With ID ${item.id}`, dynamoDBItem);
 
     // Delete the item from DynamoDB
-    await deleteDynamoDBItem({ id: item.id });
-
+    //await deleteDynamoDBItem({ id: item.id });
+    
     response
       .status(StatusCodes.OK)
-      .json({ msg: "Hello from path1" });
+      .json({ data:dynamoDBItem});
+
   } catch (error) {
     console.error("Error", error);
     response
@@ -51,6 +59,8 @@ api.post("/path1", async (request, response) => {
   }
 });
 
+/*
+//creacion de usuarios
 api.post("/path2", upload.single("file"), async (request, response) => {
   try {
     console.info("BODY", request.file);
@@ -84,5 +94,5 @@ api.post("/path2", upload.single("file"), async (request, response) => {
       .json({ msg: "Internal Server Error" });
   }
 });
-
+*/
 module.exports = api;
