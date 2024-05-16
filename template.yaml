@@ -58,7 +58,7 @@ Resources:
                   - dynamodb:DeleteItem
                 Effect: Allow
                 Resource:
-                  !GetAtt SitioTuristicoTable.Arn
+                  - !GetAtt SitioTuristicoTable.Arn
         - PolicyName: AppNameS3Policy
           PolicyDocument:
             Version: 2012-10-17

@@ -23,12 +23,11 @@ const {
 
 const api = express.Router();
 
-
-//creacion de usuarios
+//consulta
 api.post("/buscarDatos", async (request, response) => {
   try {
-    console.log("hola mundo")
     console.info("BODY", request.body);
+    /*
     
     /*
     const item = {
@@ -58,6 +57,45 @@ api.post("/buscarDatos", async (request, response) => {
       .json({ msg: "Internal Server Error" });
   }
 });
+
+//crear datos
+api.post("/crearDatos", async (request, response) => {
+  try {
+    console.info("BODY", request.body);
+    
+    
+    /*
+    const item = {
+      ...request.body,
+      visible: true,
+    };
+    */
+
+    // Put the item in DynamoDB
+    await putDynamoDBItem(request.body.id_reserva,
+      request.body.Nombres,
+      request.body.Apellidos,
+      request.body.Fecha_y_hora);
+
+    // Get the item from DynamoDB
+    //const dynamoDBItem = await getDynamoDBItem(request.body.id_reserva);
+    //console.info(`DynamoDB Item With ID ${item.id}`, dynamoDBItem);
+
+    // Delete the item from DynamoDB
+    //await deleteDynamoDBItem({ id: item.id });
+    
+    response
+      .status(StatusCodes.OK)
+      .json({ msg: "registro exitoso"});
+
+  } catch (error) {
+    console.error("Error", error);
+    response
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Internal Server Error" });
+  }
+});
+
 
 /*
 //creacion de usuarios
