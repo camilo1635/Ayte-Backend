@@ -24,12 +24,21 @@ const {
 const api = express.Router();
 
 //consulta
-api.post("/buscarDatos", async (request, response) => {
+api.get("/buscarDatos/:id_reserva", async (request, response) => {
   try {
-    console.info("BODY", request.body);
+    const id_reserva = request.params.id_reserva;
+    console.info("ID_RESERVA", id_reserva);
     
     // Get the item from DynamoDB
-    const dynamoDBItem = await getDynamoDBItem(request.body.id_reserva);
+    const dynamoDBItem = await getDynamoDBItem(id_reserva);
+    
+    // Verificar si el elemento existe o no
+    if (!dynamoDBItem) {
+      // Si el elemento no existe, devolver un mensaje de error
+      return response
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "El 'id_reserva' no existe" });
+    }
     
     response
       .status(StatusCodes.OK)
