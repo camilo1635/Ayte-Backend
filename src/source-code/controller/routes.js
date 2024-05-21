@@ -27,24 +27,9 @@ const api = express.Router();
 api.post("/buscarDatos", async (request, response) => {
   try {
     console.info("BODY", request.body);
-    /*
     
-    /*
-    const item = {
-      ...request.body,
-      visible: true,
-    };
-    */
-
-    // Put the item in DynamoDB
-    //await putDynamoDBItem(item);
-
     // Get the item from DynamoDB
     const dynamoDBItem = await getDynamoDBItem(request.body.id_reserva);
-    //console.info(`DynamoDB Item With ID ${item.id}`, dynamoDBItem);
-
-    // Delete the item from DynamoDB
-    //await deleteDynamoDBItem({ id: item.id });
     
     response
       .status(StatusCodes.OK)
@@ -58,31 +43,16 @@ api.post("/buscarDatos", async (request, response) => {
   }
 });
 
-//crear datos
+//crear nueva reserva
 api.post("/crearDatos", async (request, response) => {
   try {
     console.info("BODY", request.body);
     
-    
-    /*
-    const item = {
-      ...request.body,
-      visible: true,
-    };
-    */
-
     // Put the item in DynamoDB
     await putDynamoDBItem(request.body.id_reserva,
       request.body.Nombres,
       request.body.Apellidos,
       request.body.Fecha_y_hora);
-
-    // Get the item from DynamoDB
-    //const dynamoDBItem = await getDynamoDBItem(request.body.id_reserva);
-    //console.info(`DynamoDB Item With ID ${item.id}`, dynamoDBItem);
-
-    // Delete the item from DynamoDB
-    //await deleteDynamoDBItem({ id: item.id });
     
     response
       .status(StatusCodes.OK)
@@ -95,6 +65,25 @@ api.post("/crearDatos", async (request, response) => {
       .json({ msg: "Internal Server Error" });
   }
 });
+
+api.delete("/eliminarReserva", async (request, response) => {
+  try {
+    console.info("BODY", request.body);
+
+    // Delete the item from DynamoDB
+    await deleteDynamoDBItem(request.body.id_reserva);
+
+    response
+      .status(StatusCodes.OK)
+      .json({ msg: "Reserva eliminada" });
+  } catch (error) {
+    console.error("Error", error);
+    response
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Internal Server Error" });
+  }
+});
+
 
 
 /*

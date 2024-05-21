@@ -81,7 +81,9 @@ const putDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora) => {
 const deleteDynamoDBItem = async (id_reserva) => {
   const params = {
     TableName: SitioTuristicoTable,
-    Key: id_reserva,
+    Key: {
+      id_reserva,
+    },
   };
   console.info("DELETE PARAMS", params);
 
