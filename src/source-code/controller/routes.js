@@ -7,7 +7,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Importing the functions from the DynamoDB SDK
 const {
-  createReserva,
+  postDynamoDBItem,
   putDynamoDBItem,
   getDynamoDBItem,
   deleteDynamoDBItem,
@@ -47,9 +47,19 @@ api.post("/buscarDatos", async (request, response) => {
 api.post("/crearDatos", async (request, response) => {
   try {
     console.info("BODY", request.body);
+
+    // Verificar si el registro con el mismo 'id_reserva' ya existe
+    const existingItem = await getDynamoDBItem(request.body.id_reserva);
+
+    if (existingItem) {
+      // Si el registro ya existe, devolver un mensaje indicando que ya se ha creado
+      return response
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ msg: "La reserva ya existe" });
+    }
     
-    // Put the item in DynamoDB
-    await putDynamoDBItem(request.body.id_reserva,
+    // Si el registro no existe, crearlo
+    await postDynamoDBItem(request.body.id_reserva,
       request.body.Nombres,
       request.body.Apellidos,
       request.body.Fecha_y_hora);
@@ -84,7 +94,26 @@ api.delete("/eliminarReserva", async (request, response) => {
   }
 });
 
+api.put("/modificarReserva", async (request, response) => {
+  try {
+    console.info("BODY", request.body);
 
+    // Delete the item from DynamoDB
+    await putDynamoDBItem(request.body.id_reserva,
+      request.body.Nombres,
+      request.body.Apellidos,
+      request.body.Fecha_y_hora);
+
+    response
+      .status(StatusCodes.OK)
+      .json({ msg: "Reserva modificada" });
+  } catch (error) {
+    console.error("Error", error);
+    response
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Internal Server Error" });
+  }
+});
 
 /*
 //creacion de usuarios

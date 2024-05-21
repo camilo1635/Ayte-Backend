@@ -35,19 +35,19 @@ const getDynamoDBItem = async (id_reserva) => {
   }
 }
 
-const createReserva = async (id_reserva) => {
+const postDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora) => {
   try{
     const params = {
       TableName: SitioTuristicoTable,
       Item: {
         id_reserva,
-        Nombres: "",
-        Apellidos: "",
-        Fecha_y_hora: "",
+        Nombres: Nombres,
+        Apellidos: Apellidos,
+        Fecha_y_hora: Fecha_y_hora,
       },
 
     };
-    console.info({ msg: "PARAMS", params });
+    console.info({ msg: "POST PARAMS", params });
 
     await dynamodb.put(params);
   }catch (error) {
@@ -97,7 +97,7 @@ const deleteDynamoDBItem = async (id_reserva) => {
 }
 
 module.exports = {
-  createReserva,
+  postDynamoDBItem,
   getDynamoDBItem,
   putDynamoDBItem,
   deleteDynamoDBItem,
