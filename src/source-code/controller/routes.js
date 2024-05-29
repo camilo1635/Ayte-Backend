@@ -117,15 +117,29 @@ api.delete("/eliminarReserva/:id_reserva", async (request, response) => {
   }
 });
 
-api.put("/modificarReserva", async (request, response) => {
+api.put("/modificarReserva/:id_reserva", async (request, response) => {
   try {
     console.info("BODY", request.body);
+    const id_reserva = request.params.id_reserva;
+    console.info("ID_RESERVA", id_reserva);
 
+    // Verificar si el elemento existe en DynamoDB
+    const dynamoDBItem = await getDynamoDBItem(id_reserva);
+
+    // Si el elemento no existe, devolver un mensaje de error
+    if (!dynamoDBItem) {
+      return response
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "La reserva no existe" });
+    }
     
     await putDynamoDBItem(request.body.id_reserva,
       request.body.Nombres,
       request.body.Apellidos,
-      request.body.Fecha_y_hora);
+      request.body.Fecha_y_hora,
+      request.body.No_habitaciones,
+      request.body.No_baños,
+      request.body.No_camas);
 
     response
       .status(StatusCodes.OK)

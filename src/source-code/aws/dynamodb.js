@@ -60,8 +60,8 @@ const postDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora, No_ha
   }
 };
 
-
-const putDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora) => {
+const putDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora, No_habitaciones, 
+  No_baños, No_camas) => {
   const params = {
     TableName: SitioTuristicoTable,
     Item: {
@@ -69,6 +69,9 @@ const putDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora) => {
       Nombres: Nombres,
       Apellidos: Apellidos,
       Fecha_y_hora: Fecha_y_hora,
+      No_habitaciones: No_habitaciones,
+      No_baños: No_baños,
+      No_camas: No_camas
     },
   };
   console.info("PUT PARAMS", params);
