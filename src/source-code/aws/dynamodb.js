@@ -35,7 +35,8 @@ const getDynamoDBItem = async (id_reserva) => {
   }
 }
 
-const postDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora) => {
+const postDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora, No_habitaciones, 
+  No_baños, No_camas) => {
   try{
     const params = {
       TableName: SitioTuristicoTable,
@@ -44,6 +45,9 @@ const postDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora) => {
         Nombres: Nombres,
         Apellidos: Apellidos,
         Fecha_y_hora: Fecha_y_hora,
+        No_habitaciones: No_habitaciones,
+        No_baños: No_baños,
+        No_camas: No_camas
       },
 
     };

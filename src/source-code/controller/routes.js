@@ -71,13 +71,16 @@ api.post("/crearDatos", async (request, response) => {
     await postDynamoDBItem(request.body.id_reserva,
       request.body.Nombres,
       request.body.Apellidos,
-      request.body.Fecha_y_hora);
+      request.body.Fecha_y_hora,
+      request.body.No_habitaciones,
+      request.body.No_baños,
+      request.body.No_camas);
     
     response
       .status(StatusCodes.OK)
       .json({ msg: "registro exitoso"});
 
-  } catch (error) {
+  }  catch (error) {
     console.error("Error", error);
     response
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -85,12 +88,23 @@ api.post("/crearDatos", async (request, response) => {
   }
 });
 
-api.delete("/eliminarReserva", async (request, response) => {
+api.delete("/eliminarReserva/:id_reserva", async (request, response) => {
   try {
-    console.info("BODY", request.body);
+    const id_reserva = request.params.id_reserva;
+    console.info("ID_RESERVA", id_reserva);
+
+    // Verificar si el elemento existe en DynamoDB
+    const dynamoDBItem = await getDynamoDBItem(id_reserva);
+
+    // Si el elemento no existe, devolver un mensaje de error
+    if (!dynamoDBItem) {
+      return response
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "La reserva no existe" });
+    }
 
     // Delete the item from DynamoDB
-    await deleteDynamoDBItem(request.body.id_reserva);
+    await deleteDynamoDBItem(id_reserva);
 
     response
       .status(StatusCodes.OK)
@@ -107,7 +121,7 @@ api.put("/modificarReserva", async (request, response) => {
   try {
     console.info("BODY", request.body);
 
-    // Delete the item from DynamoDB
+    
     await putDynamoDBItem(request.body.id_reserva,
       request.body.Nombres,
       request.body.Apellidos,
@@ -123,6 +137,48 @@ api.put("/modificarReserva", async (request, response) => {
       .json({ msg: "Internal Server Error" });
   }
 });
+
+//Calcular precio total
+api.get("/calcularPrecio/:id_reserva", async (request, response) => {
+  try {
+    const id_reserva = request.params.id_reserva;
+    console.info("ID_RESERVA", id_reserva);
+    
+    // Get the item from DynamoDB
+    const dynamoDBItem = await getDynamoDBItem(id_reserva);
+    
+    // Verificar si el elemento existe o no
+    if (!dynamoDBItem) {
+      // Si el elemento no existe, devolver un mensaje de error
+      return response
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "El 'id_reserva' no existe" });
+    }
+
+    const { No_habitaciones, No_baños, No_camas } = dynamoDBItem;
+    
+    // Realizar la operación matemática
+    const precio_por_habitacion = 50;
+    const precio_por_bano = 30;
+    const precio_por_cama = 20;
+    
+    const precio_total = (No_habitaciones * precio_por_habitacion) +
+                         (No_baños * precio_por_bano) +
+                         (No_camas * precio_por_cama);
+    
+
+    response
+      .status(StatusCodes.OK)
+      .json({ precio_total });
+
+  } catch (error) {
+    console.error("Error", error);
+    response
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Internal Server Error" });
+  }
+});
+
 
 /*
 //creacion de usuarios
