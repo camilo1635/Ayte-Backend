@@ -11,6 +11,7 @@ const {
   putDynamoDBItem,
   getDynamoDBItem,
   deleteDynamoDBItem,
+  getAllDynamoDBItems,
 } = require("../aws/dynamodb");
 
 // Importing the functions from the S3 SDK
@@ -42,7 +43,30 @@ api.get("/buscarDatos/:id_reserva", async (request, response) => {
     
     response
       .status(StatusCodes.OK)
-      .json({ data:dynamoDBItem});
+      .json({ data:dynamoDBItem});//envía el registro encontrado
+
+  } catch (error) {
+    console.error("Error", error);
+    response
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ msg: "Internal Server Error" });
+  }
+});
+
+//lista todoas las reservas
+api.get("/todasLasReservas", async (request, response) => {
+  try {
+    const dynamoDBItems = await getAllDynamoDBItems();
+    
+    if (!dynamoDBItems || dynamoDBItems.length === 0) {
+      return response
+        .status(StatusCodes.NOT_FOUND)
+        .json({ msg: "No hay reservas registradas" });
+    }
+    
+    response
+      .status(StatusCodes.OK)
+      .json({ data: dynamoDBItems });
 
   } catch (error) {
     console.error("Error", error);
@@ -133,6 +157,7 @@ api.put("/modificarReserva/:id_reserva", async (request, response) => {
         .json({ msg: "La reserva no existe" });
     }
     
+    //si el registro existe lo modifica según el body
     await putDynamoDBItem(request.body.id_reserva,
       request.body.Nombres,
       request.body.Apellidos,
@@ -168,7 +193,8 @@ api.get("/calcularPrecio/:id_reserva", async (request, response) => {
         .status(StatusCodes.NOT_FOUND)
         .json({ msg: "El 'id_reserva' no existe" });
     }
-
+    
+    //Se definen variables con valores fijos
     const { No_habitaciones, No_baños, No_camas } = dynamoDBItem;
     
     // Realizar la operación matemática
@@ -183,7 +209,7 @@ api.get("/calcularPrecio/:id_reserva", async (request, response) => {
 
     response
       .status(StatusCodes.OK)
-      .json({ precio_total });
+      .json({ precio_total });//envia la operación final 
 
   } catch (error) {
     console.error("Error", error);

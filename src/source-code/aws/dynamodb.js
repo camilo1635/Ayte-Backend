@@ -1,16 +1,17 @@
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
-const { 
-  DynamoDBDocument, 
+const {
+  DynamoDBDocument,
   GetCommand,
   PutCommand,
   DeleteCommand,
+  ScanCommand,
 } = require("@aws-sdk/lib-dynamodb");
 
 const { AWS_REGION, SitioTuristicoTable } = require("../utils/constants");
 
 const dynamodbClient = new DynamoDB({ region: AWS_REGION });
 const dynamodb = DynamoDBDocument.from(dynamodbClient);
-  
+
 const getDynamoDBItem = async (id_reserva) => {
   const params = {
     TableName: SitioTuristicoTable,
@@ -35,9 +36,30 @@ const getDynamoDBItem = async (id_reserva) => {
   }
 }
 
-const postDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora, No_habitaciones, 
+const getAllDynamoDBItems = async () => {
+  const params = {
+    TableName: SitioTuristicoTable
+  };
+  console.info("SCAN PARAMS", params);
+
+  try {
+    const command = new ScanCommand(params);
+    const response = await dynamodb.send(command);
+
+    if (response.Items) {
+      return response.Items;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const postDynamoDBItem = async (id_reserva, Nombres, Apellidos, Fecha_y_hora, No_habitaciones,
   No_baños, No_camas) => {
-  try{
+  try {
     const params = {
       TableName: SitioTuristicoTable,
       Item: {
@@ -54,13 +76,13 @@ const postDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora, No_ha
     console.info({ msg: "POST PARAMS", params });
 
     await dynamodb.put(params);
-  }catch (error) {
+  } catch (error) {
     console.error(error);
     throw error;
   }
 };
 
-const putDynamoDBItem = async (id_reserva,Nombres,Apellidos,Fecha_y_hora, No_habitaciones, 
+const putDynamoDBItem = async (id_reserva, Nombres, Apellidos, Fecha_y_hora, No_habitaciones,
   No_baños, No_camas) => {
   const params = {
     TableName: SitioTuristicoTable,
@@ -106,6 +128,7 @@ const deleteDynamoDBItem = async (id_reserva) => {
 module.exports = {
   postDynamoDBItem,
   getDynamoDBItem,
+  getAllDynamoDBItems,
   putDynamoDBItem,
   deleteDynamoDBItem,
 };
